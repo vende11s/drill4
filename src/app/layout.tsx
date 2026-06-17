@@ -16,26 +16,26 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const title = "Drill3 | Multiple-choice practice assistant";
+const title = "Drill3Pro | Multiple-choice practice assistant";
 const description = "Interactive multiple-choice practice with custom scoring, shuffling, and instant feedback.";
 
 export const metadata: Metadata = {
   title: {
     default: title,
-    template: "%s | Drill3",
+    template: "%s | Drill3Pro",
   },
   description,
   keywords: ["multiple choice", "quiz", "practice", "study", "flashcards", "test prep", "assessment"],
-  authors: [{ name: "Drill3" }],
-  creator: "Drill3",
-  publisher: "Drill3",
+  authors: [{ name: "Drill3Pro" }],
+  creator: "Drill3Pro",
+  publisher: "Drill3Pro",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title,
     description,
-    siteName: "Drill3",
+    siteName: "Drill3Pro",
     type: "website",
     locale: "en_GB",
     url: "/",
@@ -55,12 +55,18 @@ export default function RootLayout({
         <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 pb-10 pt-6 sm:px-6 lg:px-8">
           <header className="mb-6 flex items-center justify-between rounded-xl border border-slate-200 bg-white/70 px-4 py-3 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/70">
             <Link href="/" className="font-semibold text-3xl tracking-tight ">
-              Drill3
+              Drill3Pro
             </Link>
             <div className="flex gap-4 items-center">
-              <Link href="/" className="tracking-tight text-slate-500 dark:text-slate-50">
+              <Link href="/" className="text-sm font-medium hover:underline text-slate-500 dark:text-slate-300">
                 Home
               </Link>
+              <a href="https://github.com/gronostajo/drill2/wiki/File-format" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline text-slate-500 dark:text-slate-300">
+                File format
+              </a>
+              <a href="https://github.com/kacperwyczawski/drill3pro" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline text-slate-500 dark:text-slate-300">
+                Source
+              </a>
               <ThemeToggle />
             </div>
           </header>
