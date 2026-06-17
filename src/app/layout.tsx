@@ -61,9 +61,9 @@ export default function RootLayout({
               <Link href="/" className="text-sm font-medium hover:underline text-slate-500 dark:text-slate-300">
                 Home
               </Link>
-              <a href="https://github.com/gronostajo/drill2/wiki/File-format" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline text-slate-500 dark:text-slate-300">
+              <Link href="/format" className="text-sm font-medium hover:underline text-slate-500 dark:text-slate-300">
                 File format
-              </a>
+              </Link>
               <a href="https://github.com/kacperwyczawski/drill3pro" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline text-slate-500 dark:text-slate-300">
                 Source
               </a>
