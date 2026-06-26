@@ -173,7 +173,7 @@ export default function Home() {
               Learn mode (Spaced Repetition)
             </label>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Znacznie przyspiesza naukę wykorzystując inteligentny algorytm powtórek znany z Anki czy Quizleta. W tym trybie test skupia się na pełnym opanowaniu materiału, dlatego tradycyjna punktacja zostaje ukryta.
+              Significantly speeds up learning using a smart repetition algorithm known from Anki or Quizlet. In this mode, the test focuses on mastering the material, so traditional scoring is hidden.
             </p>
           </div>
 
