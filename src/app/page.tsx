@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, ArrowRight, FileText, Loader2, Shuffle, UploadCloud, Wand2 } from "lucide-react";
 
@@ -30,6 +30,17 @@ export default function Home() {
   async function handleStart() {
     await quizStore.startTest();
     router.push("/test");
+  }
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Loader2 className="size-8 animate-spin text-slate-300" />
+      </div>
+    );
   }
 
   return (

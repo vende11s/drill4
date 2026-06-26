@@ -33,6 +33,7 @@ type QuizStoreState = {
   config: TestConfig;
   questions: QuestionI[];
   activeQuestions: QuestionI[];
+  mainPool: QuestionI[];
   selectedOptions: Record<string, string[]>;
   results: QuestionResult[];
   questionStats: Record<string, QuestionStats>;
@@ -60,6 +61,7 @@ const initialState: QuizStoreState = {
   config: defaultConfig,
   questions: [],
   activeQuestions: [],
+  mainPool: [],
   selectedOptions: {},
   results: [],
   questionStats: {},
@@ -212,6 +214,7 @@ export const quizStore = {
       status: "ready",
       questions,
       activeQuestions: [],
+      mainPool: [],
       results: [],
       selectedOptions: {},
       currentIndex: 0,
@@ -227,6 +230,7 @@ export const quizStore = {
       status: "ready",
       questions,
       activeQuestions: [],
+      mainPool: [],
       results: [],
       selectedOptions: {},
       currentIndex: 0,
@@ -242,6 +246,7 @@ export const quizStore = {
       status: "ready",
       questions,
       activeQuestions: [],
+      mainPool: [],
       results: [],
       selectedOptions: {},
       currentIndex: 0,
@@ -256,12 +261,17 @@ export const quizStore = {
     console.log("Prepared questions:", prepared);
     const initialStats: Record<string, QuestionStats> = {};
     prepared.forEach(q => {
-      initialStats[q.hash] = { consecutiveCorrect: 0, targetStreak: 1 };
+      initialStats[q.hash] = { consecutiveCorrect: 0, targetStreak: state.config.spacedRepetition ? 2 : 1 };
     });
+
+    const activeQuestions = state.config.spacedRepetition ? prepared.slice(0, 20) : prepared;
+    const mainPool = state.config.spacedRepetition ? prepared.slice(20) : [];
+
     setState(prev => ({
       ...prev,
       status: "testing",
-      activeQuestions: prepared,
+      activeQuestions,
+      mainPool,
       selectedOptions: {},
       results: [],
       questionStats: initialStats,
@@ -292,7 +302,7 @@ export const quizStore = {
   },
   nextQuestion() {
     setState(prev => {
-      const { activeQuestions, selectedOptions, currentIndex, results, questionStats, config } = prev;
+      const { activeQuestions, mainPool, selectedOptions, currentIndex, results, questionStats, config } = prev;
 
       const currentQuestion = activeQuestions[currentIndex];
       const lastRes = results.find(r => r.questionHash === currentQuestion.hash);
@@ -310,31 +320,47 @@ export const quizStore = {
       }
 
       let nextActive = [...activeQuestions];
+      let nextPool = [...mainPool];
       let nextStats = { ...(questionStats || {}) };
-      const stats = nextStats[currentQuestion.hash] || { consecutiveCorrect: 0, targetStreak: 1 };
+      const stats = nextStats[currentQuestion.hash] || { consecutiveCorrect: 0, targetStreak: 2 };
 
       let reinsert = false;
+      let offset = 0;
 
       if (lastRes.isCorrect === false) {
         nextStats[currentQuestion.hash] = { consecutiveCorrect: 0, targetStreak: 2 };
         reinsert = true;
+        offset = 4;
       } else {
         const newCorrectCount = stats.consecutiveCorrect + 1;
         if (newCorrectCount < stats.targetStreak) {
           nextStats[currentQuestion.hash] = { consecutiveCorrect: newCorrectCount, targetStreak: stats.targetStreak };
           reinsert = true;
+          offset = 12;
         } else {
           nextStats[currentQuestion.hash] = { consecutiveCorrect: newCorrectCount, targetStreak: stats.targetStreak };
+          reinsert = false;
         }
       }
 
       if (reinsert) {
         lastRes.lastAttempted = true;
         selectedOptions[lastRes.questionHash] = [];
-        const insertIndex = Math.min(currentIndex + 6, nextActive.length);
+        
+        let insertIndex = currentIndex + offset;
+        while (nextActive.length < insertIndex && nextPool.length > 0) {
+          nextActive.push(nextPool.shift()!);
+        }
+        
+        insertIndex = Math.min(insertIndex, nextActive.length);
         nextActive.splice(insertIndex, 0, currentQuestion);
       } else {
         lastRes.lastAttempted = false;
+      }
+
+      // Ensure we have a next question if there's still stuff in the pool
+      if (currentIndex + 1 >= nextActive.length && nextPool.length > 0) {
+        nextActive.push(nextPool.shift()!);
       }
 
       const nextIndex = currentIndex + 1;
@@ -343,6 +369,7 @@ export const quizStore = {
       return {
         ...prev,
         activeQuestions: nextActive,
+        mainPool: nextPool,
         questionStats: nextStats,
         currentIndex: isLast ? currentIndex : nextIndex,
         status: isLast ? "done" : prev.status

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Frown, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,11 @@ export default function Summary() {
     results: state.results,
   }));
   const summary = quizStore.useStore(selectSummary);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
 
   if (!results.length) {
     return (

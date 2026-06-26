@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2, Frown, Loader2 } from "lucide-react";
 
@@ -14,9 +14,11 @@ import { cn } from "@/lib/utils";
 export default function Test() {
   const router = useRouter();
 
-  const { status, activeQuestions, currentIndex, selectedOptions, results } = quizStore.useStore(state => ({
+  const { status, activeQuestions, mainPool, questionStats, currentIndex, selectedOptions, results, config } = quizStore.useStore(state => ({
     status: state.status,
     activeQuestions: state.activeQuestions,
+    mainPool: state.mainPool,
+    questionStats: state.questionStats,
     currentIndex: state.currentIndex,
     selectedOptions: state.selectedOptions,
     results: state.results,
@@ -28,8 +30,12 @@ export default function Test() {
   const question = activeQuestions[currentIndex];
   const resultMap = Object.fromEntries(results.map(item => [item.questionHash, item]));
   const loading = status === "loading";
-  const answeredCount = currentIndex;
-  const totalQuestions = activeQuestions.length || 1;
+  
+  const masteredCount = Object.values(questionStats).filter(s => s.consecutiveCorrect >= s.targetStreak).length;
+  const totalUnique = Object.keys(questionStats).length || 1;
+  
+  const answeredCount = config.spacedRepetition ? masteredCount : currentIndex;
+  const totalQuestions = config.spacedRepetition ? totalUnique : (activeQuestions.length || 1);
   const completionPercent = Math.round((answeredCount / totalQuestions) * 100);
 
   useEffect(() => {
@@ -37,6 +43,17 @@ export default function Test() {
       router.push("/summary");
     }
   }, [router, status]);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Loader2 className="size-8 animate-spin text-slate-300" />
+      </div>
+    );
+  }
 
   if (!activeQuestions.length || !question) {
     return (
