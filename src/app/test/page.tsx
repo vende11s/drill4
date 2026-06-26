@@ -53,7 +53,7 @@ export default function Test() {
     if (reveal && isSingleChoiceTest) {
       const timer = setTimeout(() => {
         quizStore.nextQuestion();
-      }, 1000);
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [reveal, isSingleChoiceTest]);
@@ -146,7 +146,7 @@ export default function Test() {
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                 <div 
                   className="h-full bg-indigo-400 dark:bg-indigo-600 rounded-full"
-                  style={{ animation: "shrink-width 1000ms linear forwards" }}
+                  style={{ animation: "shrink-width 1500ms linear forwards" }}
                 />
                 <style>{`
                   @keyframes shrink-width {
