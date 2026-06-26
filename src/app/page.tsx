@@ -170,10 +170,10 @@ export default function Home() {
                 checked={config.spacedRepetition}
                 onCheckedChange={checked => quizStore.setConfig({ spacedRepetition: Boolean(checked) })}
               />
-              Spaced Repetition
+              Learn mode (Spaced Repetition)
             </label>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Incorrectly answered questions will reappear later until answered correctly 2 times in a row. This significantly speeds up learning!
+              Znacznie przyspiesza naukę wykorzystując inteligentny algorytm powtórek znany z Anki czy Quizleta. W tym trybie test skupia się na pełnym opanowaniu materiału, dlatego tradycyjna punktacja zostaje ukryta.
             </p>
           </div>
 
