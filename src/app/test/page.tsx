@@ -23,6 +23,7 @@ export default function Test() {
     selectedOptions: state.selectedOptions,
     results: state.results,
     config: state.config,
+    isSingleChoiceTest: state.isSingleChoiceTest,
   }));
 
   const summary = quizStore.useStore(selectSummary);
@@ -110,7 +111,7 @@ export default function Test() {
                 onClick={() => {
                   if (!reveal) {
                     toggle(option.id);
-                    if (question.singleChoice) {
+                    if (isSingleChoiceTest) {
                       check();
                     }
                   }
@@ -121,7 +122,7 @@ export default function Test() {
                   stateClass,
                 )}
               >
-                <Checkbox checked={selected} className={cn("mt-1", question.singleChoice && "rounded-full")} />
+                <Checkbox checked={selected} className={cn("mt-1", isSingleChoiceTest && "rounded-full")} />
                 <span className="font-medium text-slate-800 dark:text-slate-100 select-none">
                   <MarkdownRenderer>{option.body}</MarkdownRenderer>
                 </span>
@@ -131,12 +132,12 @@ export default function Test() {
 
           {revealStatus(reveal, currentResult)}
           <div className="flex items-center justify-end gap-2">
-            {!reveal && question.singleChoice && (
+            {!reveal && isSingleChoiceTest && (
               <Button variant="outline" onClick={check} disabled={loading} className="gap-2">
                 I don't know
               </Button>
             )}
-            {!reveal && !question.singleChoice && (
+            {!reveal && !isSingleChoiceTest && (
               <Button variant="secondary" onClick={check} disabled={loading} className="gap-2">
                 {loading ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />} Check
               </Button>

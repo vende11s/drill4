@@ -10,7 +10,6 @@ export type QuestionI = {
   readonly body: string;
   readonly explanation?: string;
   readonly answers: Answer[];
-  readonly singleChoice: boolean;
   scoreLog?: { score: number; total: number; timeLeft: number }[];
   timeLeft?: number;
 };
@@ -53,10 +52,6 @@ export class Question {
     this.relatedLinks = links;
   }
 
-  get singleChoice() {
-    return this.totalCorrect() === 1;
-  }
-
   toStaticQuestion(): QuestionI {
     return {
       id: this.id,
@@ -64,7 +59,6 @@ export class Question {
       body: this.body,
       explanation: this.explanation,
       answers: this.answers,
-      singleChoice: this.singleChoice,
     };
   }
 }

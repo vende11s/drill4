@@ -41,6 +41,7 @@ type QuizStoreState = {
   fileName: string | null;
   pastedText: string;
   logs: string[];
+  isSingleChoiceTest: boolean;
 };
 
 type Listener = () => void;
@@ -69,6 +70,7 @@ const initialState: QuizStoreState = {
   fileName: null,
   pastedText: "",
   logs: [],
+  isSingleChoiceTest: false,
 };
 
 function delay(ms = 320) {
@@ -82,6 +84,11 @@ async function loadSample() {
   await delay();
   const questions = await import("@/lib/mock-questions.json").then(mod => mod.default);
   return { questions: structuredClone(questions), log: [] };
+}
+
+function checkIfSingleChoice(questions: QuestionI[]) {
+  if (questions.length === 0) return false;
+  return questions.every(q => q.answers.filter(a => a.correct).length === 1);
 }
 
 let state: QuizStoreState = initialState;
@@ -213,6 +220,7 @@ export const quizStore = {
       ...prev,
       status: "ready",
       questions,
+      isSingleChoiceTest: checkIfSingleChoice(questions),
       activeQuestions: [],
       mainPool: [],
       results: [],
@@ -229,6 +237,7 @@ export const quizStore = {
       ...prev,
       status: "ready",
       questions,
+      isSingleChoiceTest: checkIfSingleChoice(questions),
       activeQuestions: [],
       mainPool: [],
       results: [],
@@ -245,6 +254,7 @@ export const quizStore = {
       ...prev,
       status: "ready",
       questions,
+      isSingleChoiceTest: checkIfSingleChoice(questions),
       activeQuestions: [],
       mainPool: [],
       results: [],
@@ -282,7 +292,7 @@ export const quizStore = {
   toggleOption(question: QuestionI, optionId: string) {
     setState(prev => {
       const current = prev.selectedOptions[question.hash] ?? [];
-      const nextSelection = question.singleChoice
+      const nextSelection = prev.isSingleChoiceTest
         ? [optionId]
         : current.includes(optionId)
           ? current.filter(id => id !== optionId)
