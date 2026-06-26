@@ -46,6 +46,18 @@ export default function Test() {
     }
   }, [router, status]);
 
+  const currentResult = resultMap[question?.hash ?? ""];
+  const reveal = Boolean(currentResult) && currentResult?.lastAttempted !== true;
+
+  useEffect(() => {
+    if (reveal && isSingleChoiceTest) {
+      const timer = setTimeout(() => {
+        quizStore.nextQuestion();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [reveal, isSingleChoiceTest]);
+
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -82,9 +94,6 @@ export default function Test() {
   function next() {
     quizStore.nextQuestion();
   }
-
-  const currentResult = resultMap[question.hash];
-  const reveal = Boolean(currentResult) && currentResult?.lastAttempted !== true;
 
   return (
     <main className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] items-start">
@@ -132,22 +141,39 @@ export default function Test() {
           })}
 
           {revealStatus(reveal, currentResult)}
-          <div className="flex items-center justify-end gap-2">
-            {!reveal && isSingleChoiceTest && (
-              <Button variant="outline" onClick={check} disabled={loading} className="gap-2">
-                I don't know
-              </Button>
-            )}
-            {!reveal && !isSingleChoiceTest && (
-              <Button variant="secondary" onClick={check} disabled={loading} className="gap-2">
-                {loading ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />} Check
-              </Button>
-            )}
-            {reveal && (
-              <Button onClick={next} className="gap-2">
-                Next <ArrowRight className="size-4" />
-              </Button>
-            )}
+          <div className="flex items-center justify-between gap-6">
+            {reveal && isSingleChoiceTest ? (
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                <div 
+                  className="h-full bg-indigo-400 dark:bg-indigo-600 rounded-full"
+                  style={{ animation: "shrink-width 2000ms linear forwards" }}
+                />
+                <style>{`
+                  @keyframes shrink-width {
+                    from { width: 100%; }
+                    to { width: 0%; }
+                  }
+                `}</style>
+              </div>
+            ) : <div />}
+
+            <div className="flex shrink-0 items-center justify-end gap-2">
+              {!reveal && isSingleChoiceTest && (
+                <Button variant="outline" onClick={check} disabled={loading} className="gap-2">
+                  I don't know
+                </Button>
+              )}
+              {!reveal && !isSingleChoiceTest && (
+                <Button variant="secondary" onClick={check} disabled={loading} className="gap-2">
+                  {loading ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />} Check
+                </Button>
+              )}
+              {reveal && (
+                <Button onClick={next} className="gap-2">
+                  Next <ArrowRight className="size-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
