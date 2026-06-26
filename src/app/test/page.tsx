@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 export default function Test() {
   const router = useRouter();
 
-  const { status, activeQuestions, mainPool, questionStats, currentIndex, selectedOptions, results, config } = quizStore.useStore(state => ({
+  const { status, activeQuestions, mainPool, questionStats, currentIndex, selectedOptions, results, config, isSingleChoiceTest } = quizStore.useStore(state => ({
     status: state.status,
     activeQuestions: state.activeQuestions,
     mainPool: state.mainPool,
