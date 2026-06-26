@@ -132,7 +132,7 @@ export default function Test() {
           {revealStatus(reveal, currentResult)}
           <div className="flex items-center justify-end gap-2">
             {!reveal && question.singleChoice && (
-              <Button variant="secondary" onClick={check} disabled={loading} className="gap-2 text-slate-500">
+              <Button variant="outline" onClick={check} disabled={loading} className="gap-2">
                 I don't know
               </Button>
             )}
