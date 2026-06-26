@@ -38,6 +38,7 @@ export default function Test() {
   const answeredCount = config.spacedRepetition ? masteredCount : currentIndex;
   const totalQuestions = config.spacedRepetition ? totalUnique : (activeQuestions.length || 1);
   const completionPercent = Math.round((answeredCount / totalQuestions) * 100);
+  const scorePercent = Math.round((summary.correct / Math.max(answeredCount, 1)) * 100);
 
   useEffect(() => {
     if (status === "done") {
@@ -163,13 +164,26 @@ export default function Test() {
               {answeredCount}/{totalQuestions}
             </div>
           </div>
+          {!config.spacedRepetition && (
+            <div className="flex w-full flex-row items-center gap-3">
+              <div className="w-16 shrink-0 whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-100">
+                Score
+              </div>
+              <div className="flex-1 h-2 rounded-full bg-slate-200 dark:bg-slate-800">
+                <div className={cn("h-full rounded-full bg-emerald-500", scorePercent > 0 && "min-w-2")} style={{ width: `${scorePercent}%` }} />
+              </div>
+              <div className="w-12 shrink-0 text-right text-sm font-medium text-slate-500 dark:text-slate-400">
+                {scorePercent}%
+              </div>
+            </div>
+          )}
         </CardHeader>
-        <CardContent className={cn("-mt-4 grid gap-2 text-center font-medium text-slate-700 dark:text-slate-200", question.singleChoice ? "grid-cols-2" : "grid-cols-3")}>
+        <CardContent className={cn("-mt-4 grid gap-2 text-center font-medium text-slate-700 dark:text-slate-200", isSingleChoiceTest || config.spacedRepetition ? "grid-cols-2" : "grid-cols-3")}>
           <div className="box border-emerald-100 dark:border-emerald-500/30">
             <div className="text-lg font-semibold text-emerald-600 dark:text-emerald-300">{summary.correct}</div>
             <div>Correct</div>
           </div>
-          {!question.singleChoice && (
+          {!isSingleChoiceTest && !config.spacedRepetition && (
             <div className="box border-amber-100 dark:border-amber-500/30">
               <div className="text-lg font-semibold text-amber-600 dark:text-amber-300">{summary.partial}</div>
               <div>Partial</div>
