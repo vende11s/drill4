@@ -107,13 +107,7 @@ export default function Home() {
             </div>
           </div>
 
-          <Separator />
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="outline" className="gap-2" disabled={loading} onClick={() => void quizStore.loadSample()}>
-              <Wand2 className="size-4" /> Load sample
-            </Button>
-          </div>
         </CardContent>
       </Card>
 
