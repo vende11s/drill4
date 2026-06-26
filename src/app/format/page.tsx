@@ -8,9 +8,9 @@ export default function FormatPage() {
     <div className="grid gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>Drill3Pro File Format</CardTitle>
+          <CardTitle>Drill4 File Format</CardTitle>
           <CardDescription>
-            Drill3Pro uses a plain text file format compatible with legacy PDS/Drill2 files, 
+            Drill4 uses a plain text file format compatible with legacy PDS/Drill2 files, 
             but extends it with full support for Markdown and LaTeX math equations.
           </CardDescription>
         </CardHeader>
@@ -44,7 +44,7 @@ export default function FormatPage() {
           <section className="space-y-3">
             <h3 className="text-lg font-semibold">Markdown and LaTeX Formatting</h3>
             <p>
-              Drill3Pro fully supports Markdown for formatting text (bold, italics, lists, etc.) and LaTeX for rendering math equations.
+              Drill4 fully supports Markdown for formatting text (bold, italics, lists, etc.) and LaTeX for rendering math equations.
             </p>
             <div className="rounded border-l-4 border-amber-500 bg-amber-50 p-4 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
               <strong>Important:</strong> All LaTeX math must be explicitly wrapped in <code>$</code> for inline equations or <code>$$</code> for block equations. 

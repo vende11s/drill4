@@ -19,6 +19,7 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeToggle() {
+  const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") return "light";
     const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
@@ -28,6 +29,7 @@ export function ThemeToggle() {
   });
 
   useEffect(() => {
+    setMounted(true);
     applyTheme(theme);
     if (typeof window !== "undefined") {
       window.localStorage.setItem(STORAGE_KEY, theme);
@@ -45,7 +47,7 @@ export function ThemeToggle() {
       onClick={() => setTheme(next)}
       className="border border-border/60"
     >
-      {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      {!mounted ? <div className="size-4" /> : theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </Button>
   );
 }

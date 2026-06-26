@@ -11,7 +11,7 @@ type TestConfig = {
   scoring: ScoringMode;
   penalty: PenaltyMode;
   timePerQuestion: number;
-  repeatIncorrect: boolean;
+  spacedRepetition: boolean;
 };
 
 type QuestionResult = {
@@ -23,6 +23,11 @@ type QuestionResult = {
   lastAttempted?: boolean;
 };
 
+type QuestionStats = {
+  consecutiveCorrect: number;
+  targetStreak: number;
+};
+
 type QuizStoreState = {
   status: Stage;
   config: TestConfig;
@@ -30,11 +35,11 @@ type QuizStoreState = {
   activeQuestions: QuestionI[];
   selectedOptions: Record<string, string[]>;
   results: QuestionResult[];
+  questionStats: Record<string, QuestionStats>;
   currentIndex: number;
   fileName: string | null;
   pastedText: string;
   logs: string[];
-  incorrectQuestionsLeft?: boolean;
 };
 
 type Listener = () => void;
@@ -45,7 +50,7 @@ const defaultConfig: TestConfig = {
   scoring: "per-answer",
   penalty: "counterbalance",
   timePerQuestion: 60,
-  repeatIncorrect: false,
+  spacedRepetition: false,
 };
 
 const STORAGE_KEY = "quiz-store-26-01-31";
@@ -57,6 +62,7 @@ const initialState: QuizStoreState = {
   activeQuestions: [],
   selectedOptions: {},
   results: [],
+  questionStats: {},
   currentIndex: 0,
   fileName: null,
   pastedText: "",
@@ -248,12 +254,17 @@ export const quizStore = {
     if (!state.questions.length) return false;
     const prepared = prepareQuestions(state.questions, state.config);
     console.log("Prepared questions:", prepared);
+    const initialStats: Record<string, QuestionStats> = {};
+    prepared.forEach(q => {
+      initialStats[q.hash] = { consecutiveCorrect: 0, targetStreak: 1 };
+    });
     setState(prev => ({
       ...prev,
       status: "testing",
       activeQuestions: prepared,
       selectedOptions: {},
       results: [],
+      questionStats: initialStats,
       currentIndex: 0,
     }));
     return true;
@@ -261,7 +272,11 @@ export const quizStore = {
   toggleOption(question: QuestionI, optionId: string) {
     setState(prev => {
       const current = prev.selectedOptions[question.hash] ?? [];
-      const nextSelection = current.includes(optionId) ? current.filter(id => id !== optionId) : [...current, optionId];
+      const nextSelection = question.singleChoice
+        ? [optionId]
+        : current.includes(optionId)
+          ? current.filter(id => id !== optionId)
+          : [...current, optionId];
 
       return { ...prev, selectedOptions: { ...prev.selectedOptions, [question.hash]: nextSelection } };
     });
@@ -277,43 +292,61 @@ export const quizStore = {
   },
   nextQuestion() {
     setState(prev => {
-      const { activeQuestions, selectedOptions, currentIndex, results, config } = prev;
+      const { activeQuestions, selectedOptions, currentIndex, results, questionStats, config } = prev;
 
-      let incorrectQuestionsLeft = prev.incorrectQuestionsLeft || false;
+      const currentQuestion = activeQuestions[currentIndex];
+      const lastRes = results.find(r => r.questionHash === currentQuestion.hash);
 
-      let nextIndex = currentIndex + 1;
+      if (!lastRes) return prev;
 
-      const lastRes = results.at(-1);
-
-      if (!config.repeatIncorrect || !lastRes) {
+      if (!config.spacedRepetition) {
+        const nextIndex = currentIndex + 1;
         const isLast = nextIndex >= activeQuestions.length;
-
-        return { ...prev, currentIndex: nextIndex % activeQuestions.length, status: isLast ? "done" : prev.status };
+        return {
+          ...prev,
+          currentIndex: isLast ? currentIndex : nextIndex,
+          status: isLast ? "done" : prev.status
+        };
       }
 
+      let nextActive = [...activeQuestions];
+      let nextStats = { ...(questionStats || {}) };
+      const stats = nextStats[currentQuestion.hash] || { consecutiveCorrect: 0, targetStreak: 1 };
+
+      let reinsert = false;
+
       if (lastRes.isCorrect === false) {
-        incorrectQuestionsLeft = true;
+        nextStats[currentQuestion.hash] = { consecutiveCorrect: 0, targetStreak: 2 };
+        reinsert = true;
+      } else {
+        const newCorrectCount = stats.consecutiveCorrect + 1;
+        if (newCorrectCount < stats.targetStreak) {
+          nextStats[currentQuestion.hash] = { consecutiveCorrect: newCorrectCount, targetStreak: stats.targetStreak };
+          reinsert = true;
+        } else {
+          nextStats[currentQuestion.hash] = { consecutiveCorrect: newCorrectCount, targetStreak: stats.targetStreak };
+        }
+      }
+
+      if (reinsert) {
         lastRes.lastAttempted = true;
         selectedOptions[lastRes.questionHash] = [];
+        const insertIndex = Math.min(currentIndex + 6, nextActive.length);
+        nextActive.splice(insertIndex, 0, currentQuestion);
       } else {
         lastRes.lastAttempted = false;
       }
 
-      if (results.length === activeQuestions.length && results.map(r => r.isCorrect).every(v => v === true)) {
-        incorrectQuestionsLeft = false;
-        return { ...prev, results, currentIndex: nextIndex % activeQuestions.length, status: "done" };
-      }
+      const nextIndex = currentIndex + 1;
+      const isLast = nextIndex >= nextActive.length;
 
-      while (true) {
-        const nextQuestion = activeQuestions[nextIndex % activeQuestions.length];
-        const nextResult = results.find(item => item.questionHash === nextQuestion.hash);
-        if (!nextResult || nextResult.isCorrect === false) {
-          break;
-        }
-        nextIndex = (nextIndex + 1) % activeQuestions.length;
-      }
-
-      return { ...prev, results, currentIndex: nextIndex % activeQuestions.length, incorrectQuestionsLeft };
+      return {
+        ...prev,
+        activeQuestions: nextActive,
+        questionStats: nextStats,
+        currentIndex: isLast ? currentIndex : nextIndex,
+        status: isLast ? "done" : prev.status
+      };
     });
   },
 };

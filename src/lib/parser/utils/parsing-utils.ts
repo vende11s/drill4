@@ -11,7 +11,7 @@ export const splitWithDoubleLines = (input: string | string[], _log?: LogFn): st
 };
 
 export function matchAnswer(str: string): AnswerMatch | null {
-  const match = /^\s*(>+)?\s*([A-Z])\)\s*([\s\S]+)$/i.exec(str);
+  const match = /^\s*(>+)?\s*([a-z]+)[\)\.]\s*([\s\S]+)$/i.exec(str);
   if (!match) return null;
   return {
     correct: Boolean(match[1]),

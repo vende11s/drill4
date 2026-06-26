@@ -28,10 +28,9 @@ export default function Test() {
   const question = activeQuestions[currentIndex];
   const resultMap = Object.fromEntries(results.map(item => [item.questionHash, item]));
   const loading = status === "loading";
-  const answeredCount = results.length;
+  const answeredCount = currentIndex;
   const totalQuestions = activeQuestions.length || 1;
   const completionPercent = Math.round((answeredCount / totalQuestions) * 100);
-  const scorePercent = Math.round((summary.correct / (answeredCount || 1)) * 100);
 
   useEffect(() => {
     if (status === "done") {
@@ -92,7 +91,12 @@ export default function Test() {
               <div
                 key={option.id}
                 onClick={() => {
-                  if (!reveal) toggle(option.id);
+                  if (!reveal) {
+                    toggle(option.id);
+                    if (question.singleChoice) {
+                      check();
+                    }
+                  }
                 }}
                 className={cn(
                   "cursor-pointer flex w-full items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors",
@@ -100,7 +104,7 @@ export default function Test() {
                   stateClass,
                 )}
               >
-                <Checkbox checked={selected} className="mt-1" />
+                <Checkbox checked={selected} className={cn("mt-1", question.singleChoice && "rounded-full")} />
                 <span className="font-medium text-slate-800 dark:text-slate-100 select-none">
                   <MarkdownRenderer>{option.body}</MarkdownRenderer>
                 </span>
@@ -110,7 +114,12 @@ export default function Test() {
 
           {revealStatus(reveal, currentResult)}
           <div className="flex items-center justify-end gap-2">
-            {!reveal && (
+            {!reveal && question.singleChoice && (
+              <Button variant="secondary" onClick={check} disabled={loading} className="gap-2 text-slate-500">
+                I don't know
+              </Button>
+            )}
+            {!reveal && !question.singleChoice && (
               <Button variant="secondary" onClick={check} disabled={loading} className="gap-2">
                 {loading ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />} Check
               </Button>
@@ -136,27 +145,18 @@ export default function Test() {
               {answeredCount}/{totalQuestions}
             </div>
           </div>
-          <div className="flex w-full flex-row items-center gap-3">
-            <div className="w-16 shrink-0 whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-100">
-              Score
-            </div>
-            <div className="flex-1 h-2 rounded-full bg-slate-200 dark:bg-slate-800">
-              <div className={cn("h-full rounded-full bg-emerald-500", scorePercent > 0 && "min-w-2")} style={{ width: `${scorePercent}%` }} />
-            </div>
-            <div className="w-12 shrink-0 text-right text-sm font-medium text-slate-500 dark:text-slate-400">
-              {scorePercent}%
-            </div>
-          </div>
         </CardHeader>
-        <CardContent className="-mt-4 grid grid-cols-3 gap-2 text-center font-medium text-slate-700 dark:text-slate-200">
+        <CardContent className={cn("-mt-4 grid gap-2 text-center font-medium text-slate-700 dark:text-slate-200", question.singleChoice ? "grid-cols-2" : "grid-cols-3")}>
           <div className="box border-emerald-100 dark:border-emerald-500/30">
             <div className="text-lg font-semibold text-emerald-600 dark:text-emerald-300">{summary.correct}</div>
             <div>Correct</div>
           </div>
-          <div className="box border-amber-100 dark:border-amber-500/30">
-            <div className="text-lg font-semibold text-amber-600 dark:text-amber-300">{summary.partial}</div>
-            <div>Partial</div>
-          </div>
+          {!question.singleChoice && (
+            <div className="box border-amber-100 dark:border-amber-500/30">
+              <div className="text-lg font-semibold text-amber-600 dark:text-amber-300">{summary.partial}</div>
+              <div>Partial</div>
+            </div>
+          )}
           <div className="box border-rose-100 dark:border-rose-500/30">
             <div className="text-lg font-semibold text-rose-600 dark:text-rose-300">{summary.incorrect}</div>
             <div>Wrong</div>

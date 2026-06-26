@@ -162,13 +162,13 @@ export default function Home() {
           <div className="space-y-1 border-slate-200 bg-white py-2 dark:border-slate-800 dark:bg-slate-900">
             <label className="flex items-center gap-2 font-medium text-slate-800 dark:text-slate-100">
               <Checkbox
-                checked={config.repeatIncorrect}
-                onCheckedChange={checked => quizStore.setConfig({ repeatIncorrect: Boolean(checked) })}
+                checked={config.spacedRepetition}
+                onCheckedChange={checked => quizStore.setConfig({ spacedRepetition: Boolean(checked) })}
               />
-              Repeat incorrectly answered questions
+              Spaced Repetition
             </label>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              After the last question, cycle back to retry any you missed until all are correct.
+              Incorrectly answered questions will reappear later until answered correctly 2 times in a row.
             </p>
           </div>
 
