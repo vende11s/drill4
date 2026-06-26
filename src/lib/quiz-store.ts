@@ -347,13 +347,21 @@ export const quizStore = {
         lastRes.lastAttempted = true;
         selectedOptions[lastRes.questionHash] = [];
         
+        let questionToReinsert = currentQuestion;
+        if (config.shuffleAnswers) {
+          questionToReinsert = {
+            ...currentQuestion,
+            answers: shuffleArray(currentQuestion.answers)
+          };
+        }
+
         let insertIndex = currentIndex + offset;
         while (nextActive.length < insertIndex && nextPool.length > 0) {
           nextActive.push(nextPool.shift()!);
         }
         
         insertIndex = Math.min(insertIndex, nextActive.length);
-        nextActive.splice(insertIndex, 0, currentQuestion);
+        nextActive.splice(insertIndex, 0, questionToReinsert);
       } else {
         lastRes.lastAttempted = false;
       }
