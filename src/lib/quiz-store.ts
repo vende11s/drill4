@@ -50,7 +50,7 @@ const defaultConfig: TestConfig = {
   scoring: "per-answer",
   penalty: "counterbalance",
   timePerQuestion: 60,
-  spacedRepetition: false,
+  spacedRepetition: true,
 };
 
 const STORAGE_KEY = "quiz-store-26-01-31";

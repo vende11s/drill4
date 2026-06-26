@@ -162,7 +162,7 @@ export default function Home() {
               Spaced Repetition
             </label>
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              Incorrectly answered questions will reappear later until answered correctly 2 times in a row.
+              Incorrectly answered questions will reappear later until answered correctly 2 times in a row. This significantly speeds up learning!
             </p>
           </div>
 
